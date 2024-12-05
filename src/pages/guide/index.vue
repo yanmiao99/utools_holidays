@@ -19,8 +19,14 @@
               :key="plan.key"
               :class="{ active: selectedPlan === plan.key }"
               @click="handlePlanClick(plan)">
-              {{ formatPlanName(plan.name) }}
+              {{ plan.name }}
             </a-tag>
+            <span
+              v-for="(plan, key) in getMonthEmojis(month)"
+              :key="key"
+              class="guide_month_emoji">
+              {{ plan.emoji }}
+            </span>
           </div>
         </div>
 
@@ -47,7 +53,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from 'vue';
+import { ref, onMounted, nextTick, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import dayjs from 'dayjs';
@@ -64,36 +70,34 @@ const planDays = ref([]);
 
 const route = useRoute();
 
-// 获取月份的请假计划
+// 获取月份的请假计划和emoji提示
 const getMonthPlans = (month) => {
-  const plans = [];
-  Object.entries(holidayData.value.plans).forEach(([key, plan]) => {
-    if (plan.emoji) return;
+  // month 从 1 开始，而 plans 的 key 从 0 开始，所以要减1
+  const monthKey = (month - 1).toString();
+  const monthPlan = holidayData.value.plans[monthKey];
 
-    if (plan.names?.length) {
-      plan.days.forEach((dayGroup, index) => {
-        const firstDay = dayGroup[0];
-        if (!firstDay) return;
+  if (!monthPlan) return [];
 
-        const planDate = dayjs(firstDay);
-        const planYear = planDate.year();
-        const planMonth = planDate.month() + 1;
-        if (planYear === holidayData.value.year && planMonth === month) {
-          plans.push({
-            key: `${month}-${key}-${index}`,
-            name: plan.names[index],
-            days: dayGroup,
-          });
-        }
-      });
-    }
-  });
-  return plans;
+  // 如果只有 emoji，直接返回空数组（emoji会在另一个函数中处理）
+  if (!monthPlan.names || !monthPlan.days) return [];
+
+  return monthPlan.names.map((name, index) => ({
+    key: `${month}-${monthKey}-${index}`,
+    name,
+    days: monthPlan.days[index],
+  }));
 };
 
-// 格式化计划名称
-const formatPlanName = (name) => {
-  return name;
+// 获取月份的emoji提示
+const getMonthEmojis = (month) => {
+  const monthKey = (month - 1).toString();
+  const monthPlan = holidayData.value.plans[monthKey];
+
+  if (!monthPlan || !monthPlan.emoji) return {};
+
+  return {
+    [monthKey]: monthPlan,
+  };
 };
 
 // 获取日期标记
@@ -140,12 +144,7 @@ const isWorkday = (dateStr) => {
 
 // 判断是否是计划中的请假日
 const isPlanDay = (dateStr) => {
-  const date = dayjs(dateStr);
-  const currentYear = holidayData.value.year;
-  if (date.year() !== currentYear) {
-    return false;
-  }
-  return planDays.value.includes(date.format('YYYY-MM-DD'));
+  return planDays.value.includes(dateStr);
 };
 
 // 处理请假计划点击
@@ -196,7 +195,7 @@ const getDateClass = (date, dateStr) => {
   if (isHoliday(dateStr)) classes.push('holiday');
   if (isWorkday(dateStr)) classes.push('work');
   if (isPlanDay(dateStr)) {
-    classes.push('plan-day');
+    classes.push('planDay');
   }
   return classes.join(' ');
 };
@@ -309,6 +308,12 @@ watch(
   .guide_month_plans {
     display: flex;
     gap: 8px;
+    align-items: center;
+
+    .guide_month_emoji {
+      font-size: 16px;
+      cursor: help;
+    }
 
     :deep(.arco-tag) {
       cursor: pointer;
@@ -444,7 +449,6 @@ watch(
       color: var(--color-text-1);
       font-size: 14px;
       margin-bottom: 4px;
-      opacity: 0.9;
     }
 
     .calendar_mark {
@@ -455,6 +459,7 @@ watch(
       bottom: 6px;
     }
 
+    // 假期
     &.holiday {
       background-color: var(--color-danger-light-1);
       .calendar_mark {
@@ -462,6 +467,7 @@ watch(
       }
     }
 
+    // 调休工作日
     &.work {
       background-color: var(--color-success-light-1);
       .calendar_mark {
@@ -469,6 +475,7 @@ watch(
       }
     }
 
+    // 周末
     &.weekend {
       background-color: var(--color-primary-light-1);
       .calendar_mark {
@@ -476,30 +483,19 @@ watch(
       }
     }
 
-    &.plan-day {
-      background-color: var(--color-warning-light-1);
+    // 请假
+    &.planDay {
+      background-color: var(--color-success-light-1);
       .calendar_mark {
-        color: rgb(var(--warning-6));
+        color: rgb(var(--success-6));
       }
     }
 
     &.holiday,
     &.work,
     &.weekend,
-    &.plan-day {
+    &.planDay {
       border-radius: 4px;
-    }
-  }
-
-  // 非当前月份的日期
-  .fc-day-other {
-    .calendar_cell {
-      // opacity: 0.25;
-      background-color: transparent !important;
-
-      .calendar_mark {
-        display: none;
-      }
     }
   }
 

@@ -39,6 +39,12 @@ const visible = ref(false);
   right: 20px;
   bottom: 20px;
   z-index: 100;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .appreciate_content {
