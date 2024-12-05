@@ -30,10 +30,10 @@
   <Appreciate />
 </template>
 <script lang="ts" setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
-import { detach } from '@/store/AppStore';
+import { detach, fetchHolidayData } from '@/store/AppStore';
 import Appreciate from '@/components/Appreciate/index.vue';
 
 const route = useRoute();
@@ -83,6 +83,10 @@ useDark({
 utools.onPluginEnter((action) => {
   console.log(action);
   detach.value = utools.getWindowType() !== 'main';
+});
+
+onMounted(() => {
+  fetchHolidayData();
 });
 </script>
 <style scoped lang="less">

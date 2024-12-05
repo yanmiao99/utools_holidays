@@ -54,31 +54,15 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useRoute } from 'vue-router';
+import { holidayData } from '@/store/AppStore';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
-
-const holidayData = ref({
-  year: 2025,
-  vacation: [],
-  plans: {},
-});
 
 const selectedPlan = ref('');
 const planDays = ref([]);
 
 const route = useRoute();
-
-// 获取假期数据
-const fetchHolidayData = async () => {
-  try {
-    const data = await window.preload.getHolidayData();
-    if (!data) return;
-    holidayData.value = data;
-  } catch (error) {
-    console.error('Error fetching holiday data:', error);
-  }
-};
 
 // 获取月份的请假计划
 const getMonthPlans = (month) => {
@@ -217,9 +201,7 @@ const getDateClass = (date, dateStr) => {
   return classes.join(' ');
 };
 
-onMounted(async () => {
-  await fetchHolidayData();
-
+onMounted(() => {
   // 如果有月份参数，滚动到对应位置
   nextTick(() => {
     const { month } = route.query;
@@ -272,7 +254,7 @@ watch(
 .guide_anchor {
   position: fixed;
   top: 0;
-  right: calc((100% - 800px) / 2 - 80px);
+  right: 0;
   height: 100%;
   padding: 8px;
   border-radius: 4px;
@@ -280,6 +262,7 @@ watch(
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 60px;
 
   :deep(.arco-anchor) {
     padding: 0;

@@ -53,30 +53,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
+import { holidayData } from '@/store/AppStore';
 
 const router = useRouter();
 
-const holidayData = ref({
-  year: 2025,
-  vacation: [],
-});
-
-const holidayList = ref([]);
-
-// 获取假期数据
-const fetchHolidayData = async () => {
-  try {
-    const data = await window.preload.getHolidayData();
-    if (!data) return;
-    holidayData.value = data;
-    holidayList.value = data.vacation.filter((v) => v.start && v.end);
-  } catch (error) {
-    console.error('Error fetching holiday data:', error);
-  }
-};
+const holidayList = computed(() =>
+  holidayData.value.vacation.filter((v) => v.start && v.end)
+);
 
 // 格式化日期范围
 const formatDateRange = (start, end) => {
@@ -108,10 +94,6 @@ const goToGuide = (holiday) => {
     hash: `#month-${month}`,
   });
 };
-
-onMounted(() => {
-  fetchHolidayData();
-});
 </script>
 
 <style scoped lang="less">
