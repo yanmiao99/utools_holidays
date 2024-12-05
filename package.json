@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.54.3",
+    "@fullcalendar/core": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/vue3": "^6.1.15",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.5",
     "dayjs": "^1.11.13",

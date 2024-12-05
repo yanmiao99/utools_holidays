@@ -1,5 +1,6 @@
 const {readFile} = require('fs');
 const {basename} = require('path');
+const https = require('https');
 
 function readFileAsync(path) {
     return new Promise((resolve, reject) => {
@@ -40,6 +41,31 @@ async function openFile(options) {
     return files;
 }
 
+// 获取假期数据
+async function getHolidayData() {
+    return new Promise((resolve, reject) => {
+        https.get('https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json', (res) => {
+            let data = '';
+
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+
+            res.on('end', () => {
+                try {
+                    const jsonData = JSON.parse(data);
+                    resolve(jsonData);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }).on('error', (error) => {
+            reject(error);
+        });
+    });
+}
+
 window.preload = {
-    openFile
+    openFile,
+    getHolidayData
 }

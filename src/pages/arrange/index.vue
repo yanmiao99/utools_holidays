@@ -48,50 +48,36 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
 
-interface Holiday {
-  name: string;
-  start: string;
-  end: string;
-  occupied: string[];
-  holiday: string;
-  enName: string;
-}
-
-interface HolidayData {
-  year: number;
-  vacation: Holiday[];
-}
-
-const holidayData = ref<HolidayData>({
+const holidayData = ref({
   year: 2025,
   vacation: [],
 });
 
-const holidayList = ref<Holiday[]>([]);
+const holidayList = ref([]);
 
 // 获取假期数据
 const fetchHolidayData = async () => {
   try {
-    const response = await fetch('/holidays.json');
-    const data = await response.json();
+    const data = await window.preload.getHolidayData();
+    if (!data) return;
     holidayData.value = data;
-    holidayList.value = data.vacation.filter((v: Holiday) => v.start && v.end);
+    holidayList.value = data.vacation.filter((v) => v.start && v.end);
   } catch (error) {
     console.error('Error fetching holiday data:', error);
   }
 };
 
 // 格式化日期范围
-const formatDateRange = (start: string, end: string) => {
+const formatDateRange = (start, end) => {
   return `${dayjs(start).format('M月D日')} - ${dayjs(end).format('M月D日')}`;
 };
 
 // 计算假期天数
-const calculateDays = (holiday: Holiday) => {
+const calculateDays = (holiday) => {
   if (!holiday.start || !holiday.end) return 0;
   const start = dayjs(holiday.start);
   const end = dayjs(holiday.end);
@@ -99,7 +85,7 @@ const calculateDays = (holiday: Holiday) => {
 };
 
 // 计算距离假期还有多少天
-const getCountdown = (holiday: Holiday) => {
+const getCountdown = (holiday) => {
   const today = dayjs().startOf('day');
   const start = dayjs(holiday.start).startOf('day');
   const diff = start.diff(today, 'day');
@@ -133,86 +119,82 @@ onMounted(() => {
 
 .arrange_card {
   border-radius: 8px;
+  margin-bottom: 16px;
 
-  :deep(.arco-card-body) {
-    padding: 24px;
-  }
-}
-
-.arrange_card_title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-  font-weight: bold;
-
-  .arrange_card_en_name {
-    font-size: 14px;
-    color: rgba(0, 0, 0, 0.6);
-    font-weight: normal;
-  }
-}
-
-.arrange_card_extra {
-  color: #165dff;
-  cursor: pointer;
-  font-size: 14px;
-
-  &:hover {
-    opacity: 0.8;
-  }
-}
-
-.arrange_card_content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.arrange_card_left {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-
-  .arrange_card_date {
-    font-size: 14px;
-    margin-right: 12px;
+  :deep(.arco-card-header) {
+    border-bottom: none;
   }
 
-  .arrange_card_info {
+  .arrange_card_title {
     display: flex;
-    align-items: flex-end;
-    margin-top: 8px;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--color-text-1);
 
-    .arrange_card_days {
-      font-size: 20px;
-      font-weight: bold;
-      margin: 0 4px;
-    }
-
-    .arrange_card_unit {
+    .arrange_card_en_name {
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.6);
+      color: var(--color-text-3);
+      font-weight: normal;
     }
   }
-}
 
-.arrange_card_right {
-  .arrange_card_countdown {
-    .arrange_card_countdown_text {
+  .arrange_card_extra {
+    color: rgb(var(--primary-6));
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .arrange_card_content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .arrange_card_left {
+    .arrange_card_date {
       font-size: 14px;
-      color: rgba(0, 0, 0, 0.6);
+      color: var(--color-text-2);
+      margin-bottom: 4px;
     }
 
-    .arrange_card_countdown_days {
-      font-size: 28px;
-      font-weight: bold;
-      margin: 0 4px;
-    }
+    .arrange_card_info {
+      display: flex;
+      align-items: baseline;
+      color: var(--color-text-2);
 
-    .arrange_card_countdown_unit {
-      font-size: 14px;
-      color: rgba(0, 0, 0, 0.6);
+      .arrange_card_days {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 0 4px;
+        color: rgb(var(--primary-6));
+      }
+
+      .arrange_card_unit {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .arrange_card_right {
+    .arrange_card_countdown {
+      color: var(--color-text-2);
+
+      .arrange_card_countdown_text {
+        font-size: 14px;
+      }
+
+      .arrange_card_countdown_days {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 4px;
+        color: rgb(var(--primary-6));
+      }
     }
   }
 }
