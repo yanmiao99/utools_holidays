@@ -9,13 +9,23 @@
 - 🎯 精准定位：支持快速定位到指定月份
 - 🌈 界面美观：清晰的视觉展示，简洁的操作体验
 
-# 功能截图
+## 功能截图
 
-![image-20241205163617529](https://qny.weizulin.cn/images/202412051636622.png)
+### 浅色主题
 
-![image-20241205163631849](https://qny.weizulin.cn/images/202412051636882.png)
+<img src="https://qny.weizulin.cn/images/202412051636622.png" width="600" alt="假期安排" />
 
-![image-20241205163649190](https://qny.weizulin.cn/images/202412051636216.png)
+<img src="https://qny.weizulin.cn/images/202412051636882.png" width="600" alt="请假攻略" />
+
+<img src="https://qny.weizulin.cn/images/202412051636216.png" width="600" alt="假期余额" />
+
+### 深色主题
+
+<img src="https://qny.weizulin.cn/images/202412051651050.png" width="600" alt="假期安排-深色" />
+
+<img src="https://qny.weizulin.cn/images/202412051651061.png" width="600" alt="请假攻略-深色" />
+
+<img src="https://qny.weizulin.cn/images/202412051651064.png" width="600" alt="假期余额-深色" />
 
 ## 技术栈
 
@@ -62,7 +72,7 @@
 
 如果这个工具对你有帮助，欢迎赞赏支持。
 
-![赞赏码](https://qny.weizulin.cn/images/202411271540075.png)
+<img src="https://qny.weizulin.cn/images/202411271540075.png" width="300" alt="赞赏码" />
 
 ## API
 
