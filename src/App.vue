@@ -1,5 +1,6 @@
 <template>
   <a-layout :class="{ main: true, 'bg-color': true, detach: detach }">
+    <ThemeSwitch />
     <a-layout-sider
       collapsed
       style="z-index: 50">
@@ -35,6 +36,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { detach, fetchHolidayData } from '@/store/AppStore';
 import Appreciate from '@/components/Appreciate/index.vue';
+import ThemeSwitch from '@/components/ThemeSwitch/index.vue';
 
 const route = useRoute();
 const router = useRouter();
