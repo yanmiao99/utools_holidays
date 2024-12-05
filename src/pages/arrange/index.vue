@@ -15,7 +15,11 @@
         </template>
 
         <template #extra>
-          <div class="arrange_card_extra">查看请假攻略</div>
+          <div
+            class="arrange_card_extra"
+            @click="goToGuide(holiday)">
+            查看请假攻略
+          </div>
         </template>
 
         <div class="arrange_card_content">
@@ -51,6 +55,9 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import dayjs from 'dayjs';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const holidayData = ref({
   year: 2025,
@@ -90,6 +97,16 @@ const getCountdown = (holiday) => {
   const start = dayjs(holiday.start).startOf('day');
   const diff = start.diff(today, 'day');
   return diff > 0 ? diff : 0;
+};
+
+// 跳转到请假攻略页面
+const goToGuide = (holiday) => {
+  const month = dayjs(holiday.start).month() + 1;
+  router.push({
+    path: '/guide',
+    query: { month },
+    hash: `#month-${month}`,
+  });
 };
 
 onMounted(() => {

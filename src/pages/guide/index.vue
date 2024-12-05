@@ -1,41 +1,59 @@
 <template>
   <div class="guide_container">
-    <div class="guide_title">{{ holidayData.year }} 年请假攻略</div>
+    <div class="guide_content">
+      <div class="guide_title">{{ holidayData.year }} 年请假攻略</div>
 
-    <div
-      class="guide_month"
-      v-for="month in 12"
-      :key="month">
-      <div class="guide_month_header">
-        <div class="guide_month_title">
-          {{ month }}月
-          <span class="guide_month_year">{{ holidayData.year }}</span>
+      <div
+        class="guide_month"
+        :id="`month-${month}`"
+        v-for="month in 12"
+        :key="month">
+        <div class="guide_month_header">
+          <div class="guide_month_title">
+            {{ month }}月
+            <span class="guide_month_year">{{ holidayData.year }}</span>
+          </div>
+          <div class="guide_month_plans">
+            <a-tag
+              v-for="(plan, index) in getMonthPlans(month)"
+              :key="plan.key"
+              :class="{ active: selectedPlan === plan.key }"
+              @click="handlePlanClick(plan)">
+              {{ formatPlanName(plan.name) }}
+            </a-tag>
+          </div>
         </div>
-        <div class="guide_month_plans">
-          <a-tag
-            v-for="(plan, index) in getMonthPlans(month)"
-            :key="plan.key"
-            :class="{ active: selectedPlan === plan.key }"
-            @click="handlePlanClick(plan)">
-            {{ formatPlanName(plan.name) }}
-          </a-tag>
-        </div>
+
+        <FullCalendar
+          :options="getCalendarOptions(month)"
+          class="guide_calendar" />
       </div>
+    </div>
 
-      <FullCalendar
-        :options="getCalendarOptions(month)"
-        class="guide_calendar" />
+    <div class="guide_anchor">
+      <a-anchor
+        boundary="center"
+        line-less
+        :change-hash="false"
+        scroll-container=".guide_content">
+        <a-anchor-link
+          v-for="month in 12"
+          :key="month"
+          :href="`#month-${month}`"
+          :title="`${month}月`" />
+      </a-anchor>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import { useRoute } from 'vue-router';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -48,6 +66,8 @@ const holidayData = ref({
 
 const selectedPlan = ref('');
 const planDays = ref([]);
+
+const route = useRoute();
 
 // 获取假期数据
 const fetchHolidayData = async () => {
@@ -197,9 +217,34 @@ const getDateClass = (date, dateStr) => {
   return classes.join(' ');
 };
 
-onMounted(() => {
-  fetchHolidayData();
+onMounted(async () => {
+  await fetchHolidayData();
+
+  // 如果有月份参数，滚动到对应位置
+  nextTick(() => {
+    const { month } = route.query;
+    if (month) {
+      const element = document.getElementById(`month-${month}`);
+      if (element) {
+        element.scrollIntoView();
+      }
+    }
+  });
 });
+
+// 监听路由变化
+watch(
+  () => route.query,
+  (newQuery) => {
+    const { month } = newQuery;
+    if (month) {
+      const element = document.getElementById(`month-${month}`);
+      if (element) {
+        element.scrollIntoView();
+      }
+    }
+  }
+);
 </script>
 
 <style scoped lang="less">
@@ -208,6 +253,7 @@ onMounted(() => {
   max-width: 800px;
   margin: 0 auto;
   background-color: var(--color-bg-1);
+  position: relative;
 }
 
 .guide_title {
@@ -215,10 +261,44 @@ onMounted(() => {
   font-weight: bold;
   text-align: center;
   margin-bottom: 30px;
-  color: var(--color-text-1);
+}
+
+.guide_content {
+  height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding-right: 100px;
+}
+
+.guide_anchor {
+  position: fixed;
+  top: 0;
+  right: calc((100% - 800px) / 2 - 80px);
+  height: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  background-color: var(--color-bg-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  :deep(.arco-anchor) {
+    padding: 0;
+
+    .arco-anchor-link {
+      padding: 4px 8px;
+      margin: 4px 0;
+
+      &.arco-anchor-link-active {
+        .arco-anchor-link-title {
+          color: rgb(var(--primary-6));
+        }
+      }
+    }
+  }
 }
 
 .guide_month {
+  scroll-margin-top: 40px;
   margin-bottom: 40px;
 
   .guide_month_header {
