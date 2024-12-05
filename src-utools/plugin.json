@@ -1,33 +1,30 @@
 {
-    "$schema": "../node_modules/utools-api-types/resource/utools.schema.json",
-    "main": "dist/index.html",
-    "preload": "preload.js",
-    "logo": "public/logo.png",
-    "platform": [
-        "win32",
-        "darwin",
-        "linux"
-    ],
-    "development": {
-        "main": "http://localhost:5173/"
-    },
-    "pluginSetting": {
-        "single": true,
-        "height": 0
-    },
-    "features": [
-        {
-            "code": "launch",
-            "explain": "vite-utools-template",
-            "icon": "public/logo.png",
-            "platform": [
-                "win32",
-                "darwin",
-                "linux"
-            ],
-            "cmds": [
-                "vite"
-            ]
-        }
-    ]
+  "$schema": "../node_modules/utools-api-types/resource/utools.schema.json",
+  "main": "dist/index.html",
+  "preload": "preload.js",
+  "logo": "public/logo.png",
+  "platform": ["win32", "darwin", "linux"],
+  "development": {
+    "main": "http://localhost:5173/"
+  },
+  "pluginSetting": {
+    "single": true,
+    "height": 0
+  },
+  "features": [
+    {
+      "code": "launch",
+      "explain": "vite-utools-template",
+      "icon": "public/logo.png",
+      "platform": ["win32", "darwin", "linux"],
+      "cmds": [
+        "请假攻略",
+        "请假指南",
+        "假期余额",
+        "假期安排",
+        "今年假期",
+        "放假安排"
+      ]
+    }
+  ]
 }

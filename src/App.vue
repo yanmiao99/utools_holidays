@@ -1,66 +1,129 @@
 <template>
-    <a-layout :class="{main: true,'bg-color': true, detach: detach}">
-        <a-layout-sider collapsed style="z-index: 50">
-            <a-menu style="width: 200px;height: 100%;" breakpoint="xl" v-model:selected-keys="selectedKeys">
-                <a-menu-item key="/home">
-                    <template #icon>
-                        <icon-home/>
-                    </template>
-                    主页
-                </a-menu-item>
-            </a-menu>
-        </a-layout-sider>
-        <a-layout-content class="container">
-            <router-view/>
-        </a-layout-content>
-    </a-layout>
+  <a-layout :class="{ main: true, 'bg-color': true, detach: detach }">
+    <a-layout-sider
+      collapsed
+      style="z-index: 50">
+      <a-menu
+        style="width: 200px; height: 100%"
+        breakpoint="xl"
+        v-model:selected-keys="selectedKeys">
+        <a-menu-item
+          v-for="item in routerMenu"
+          :key="item.key">
+          <template #icon>
+            <component :is="item.icon" />
+          </template>
+          {{ item.title }}
+        </a-menu-item>
+      </a-menu>
+    </a-layout-sider>
+    <a-layout-content class="container">
+      <router-view v-slot="{ Component }">
+        <transition
+          name="fade"
+          mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+    </a-layout-content>
+  </a-layout>
 </template>
 <script lang="ts" setup>
-import {ref, watch} from "vue";
-import {useRoute, useRouter} from "vue-router";
-import {useDark} from "@vueuse/core";
-import {detach} from "@/store/AppStore";
+import { ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useDark } from '@vueuse/core';
+import { detach } from '@/store/AppStore';
 
 const route = useRoute();
 const router = useRouter();
-const selectedKeys = ref(['/home']);
+const selectedKeys = ref(['/arrange']);
 
-watch(() => selectedKeys.value, value => router.push(value[0]));
+const routerMenu = ref([
+  {
+    key: '/arrange',
+    icon: 'IconLocation',
+    title: '假期安排',
+  },
+  {
+    key: '/guide',
+    icon: 'IconRelation',
+    title: '请假攻略',
+  },
+  {
+    key: '/balance',
+    icon: 'IconCalendarClock',
+    title: '假期余额',
+  },
+]);
 
-watch(() => route.path, value => {
+watch(
+  () => selectedKeys.value,
+  (value) => router.push(value[0])
+);
+
+watch(
+  () => route.path,
+  (value) => {
     if (value !== selectedKeys.value[0]) {
-        selectedKeys.value[0] = value;
+      selectedKeys.value[0] = value;
     }
-})
+  }
+);
 
 useDark({
-    selector: 'body',
-    attribute: 'arco-theme',
-    valueDark: 'dark',
-    valueLight: 'light',
-    storage: utools.dbStorage
-})
-
-utools.onPluginEnter(action => {
-    console.log(action);
-    detach.value = utools.getWindowType() !== 'main';
+  selector: 'body',
+  attribute: 'arco-theme',
+  valueDark: 'dark',
+  valueLight: 'light',
+  storage: utools.dbStorage,
 });
 
-
+utools.onPluginEnter((action) => {
+  console.log(action);
+  detach.value = utools.getWindowType() !== 'main';
+});
 </script>
 <style scoped lang="less">
 .main {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    color: var(--color-text-1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  color: var(--color-text-1);
 
-    & > .container {
-        position: relative;
-        height: 100%;
-        width: 100%;
-    }
+  & > .container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    background: var(--color-bg-2);
+  }
+}
+
+// 隐藏所有的滚动条
+::-webkit-scrollbar {
+  display: none;
+}
+
+// 修改过渡动画样式
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 </style>
