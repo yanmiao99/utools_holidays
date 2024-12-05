@@ -27,12 +27,14 @@
       </router-view>
     </a-layout-content>
   </a-layout>
+  <Appreciate />
 </template>
 <script lang="ts" setup>
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { detach } from '@/store/AppStore';
+import Appreciate from '@/components/Appreciate/index.vue';
 
 const route = useRoute();
 const router = useRouter();
