@@ -103,9 +103,9 @@ const getMonthEmojis = (month) => {
 // 获取日期标记
 const getDayMark = (date) => {
   const dateStr = dayjs(date).format('YYYY-MM-DD');
+  if (isPlanDay(dateStr)) return '请';
   if (isWorkday(dateStr)) return '班';
   if (isHoliday(dateStr)) return '节';
-  if (isPlanDay(dateStr)) return '请';
   if (isWeekend(date)) return '休';
   return '';
 };
@@ -190,14 +190,11 @@ const getCalendarOptions = (month) => ({
 
 // 获取日期的类名
 const getDateClass = (date, dateStr) => {
-  const classes = [];
-  if (isWeekend(date)) classes.push('weekend');
-  if (isHoliday(dateStr)) classes.push('holiday');
-  if (isWorkday(dateStr)) classes.push('work');
-  if (isPlanDay(dateStr)) {
-    classes.push('planDay');
-  }
-  return classes.join(' ');
+  if (isPlanDay(dateStr)) return 'planDay';
+  if (isWorkday(dateStr)) return 'work';
+  if (isHoliday(dateStr)) return 'holiday';
+  if (isWeekend(date)) return 'weekend';
+  return '';
 };
 
 onMounted(() => {
@@ -329,6 +326,7 @@ watch(
       &.active {
         background: rgb(var(--warning-6));
         border-color: rgb(var(--warning-6));
+        color: #fff;
         &:hover {
           border-color: rgb(var(--warning-6));
           color: #fff;
@@ -459,22 +457,6 @@ watch(
       bottom: 6px;
     }
 
-    // 假期
-    &.holiday {
-      background-color: var(--color-danger-light-1);
-      .calendar_mark {
-        color: rgb(var(--danger-6));
-      }
-    }
-
-    // 调休工作日
-    &.work {
-      background-color: var(--color-success-light-1);
-      .calendar_mark {
-        color: rgb(var(--success-6));
-      }
-    }
-
     // 周末
     &.weekend {
       background-color: var(--color-primary-light-1);
@@ -483,11 +465,27 @@ watch(
       }
     }
 
-    // 请假
-    &.planDay {
+    // 调休工作日
+    &.work {
+      background-color: var(--color-warning-light-1);
+      .calendar_mark {
+        color: rgb(var(--warning-6));
+      }
+    }
+
+    // 节假日
+    &.holiday {
       background-color: var(--color-success-light-1);
       .calendar_mark {
         color: rgb(var(--success-6));
+      }
+    }
+
+    // 请假
+    &.planDay {
+      background-color: var(--color-danger-light-1);
+      .calendar_mark {
+        color: rgb(var(--danger-6));
       }
     }
 
