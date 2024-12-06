@@ -1,7 +1,7 @@
 <template>
   <div class="guide_container">
     <div class="guide_content">
-      <div class="guide_title">{{ holidayData.year }} 年请假攻略</div>
+      <PageTitle title="请假攻略" />
 
       <div
         class="guide_month"
@@ -61,6 +61,7 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import { useRoute } from 'vue-router';
 import { holidayData } from '@/store/AppStore';
+import PageTitle from '@/components/PageTitle/index.vue';
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -232,13 +233,6 @@ watch(
   margin: 0 auto;
   background-color: var(--color-bg-1);
   position: relative;
-}
-
-.guide_title {
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 30px;
 }
 
 .guide_content {

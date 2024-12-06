@@ -1,18 +1,20 @@
 <template>
-  <div class="appreciate_container">
+  <div :class="['appreciate_container', $attrs.class]">
     <a-button
       type="primary"
+      :status="isPayday ? 'success' : ''"
       shape="round"
-      @click="visible = true">
+      v-if="visible || isPayday"
+      @click="showModal = true">
       <template #icon>
         <icon-heart-fill />
       </template>
-      赞赏
+      {{ isPayday ? '发薪日快乐！' : '赞赏' }}
     </a-button>
 
     <a-modal
-      v-model:visible="visible"
-      title="赞赏作者"
+      v-model:visible="showModal"
+      title="赞赏"
       :footer="false"
       :mask-closable="true"
       width="400px">
@@ -27,10 +29,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { IconHeartFill } from '@arco-design/web-vue/es/icon';
+import dayjs from 'dayjs';
 
-const visible = ref(false);
+const showModal = ref(false);
+const visible = ref(true);
+
+// 判断是否是发薪日
+const isPayday = computed(() => {
+  const STORAGE_KEY = 'fish_stats_config';
+  const savedConfig = window.utools.dbStorage.getItem(STORAGE_KEY);
+  if (!savedConfig) return false;
+
+  try {
+    const config = JSON.parse(savedConfig);
+    const today = dayjs();
+    return today.date() === config.salary.date;
+  } catch (error) {
+    console.error('Failed to parse config:', error);
+    return false;
+  }
+});
 </script>
 
 <style scoped lang="less">
@@ -44,6 +64,16 @@ const visible = ref(false);
 
   &:hover {
     opacity: 1;
+  }
+
+  &:not([class*='payday']) {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  :deep(.arco-btn) {
+    min-width: 80px;
   }
 }
 

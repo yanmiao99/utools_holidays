@@ -48,11 +48,6 @@ const toggleTheme = () => {
 
 <style scoped lang="less">
 .theme-switch {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 100;
-
   :deep(.arco-btn) {
     color: var(--color-text-1);
     font-size: 20px;

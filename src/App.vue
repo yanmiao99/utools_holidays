@@ -1,6 +1,5 @@
 <template>
   <a-layout :class="{ main: true, 'bg-color': true, detach: detach }">
-    <ThemeSwitch />
     <a-layout-sider
       collapsed
       style="z-index: 50">
@@ -36,7 +35,8 @@ import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { detach, fetchHolidayData } from '@/store/AppStore';
 import Appreciate from '@/components/Appreciate/index.vue';
-import ThemeSwitch from '@/components/ThemeSwitch/index.vue';
+import confetti from 'canvas-confetti';
+import dayjs from 'dayjs';
 
 const route = useRoute();
 const router = useRouter();
@@ -82,13 +82,43 @@ useDark({
   storage: utools.dbStorage,
 });
 
+const checkPayday = () => {
+  const today = dayjs().format('YYYY-MM-DD');
+  const STORAGE_KEY = 'fish_stats_config';
+  const PAYDAY_KEY = 'last_payday_confetti';
+
+  const savedConfig = window.utools.dbStorage.getItem(STORAGE_KEY);
+  const lastPayday = window.utools.dbStorage.getItem(PAYDAY_KEY);
+
+  if (!savedConfig) return;
+
+  try {
+    const config = JSON.parse(savedConfig);
+    const isPayday = dayjs().date() === config.salary.date;
+
+    if (isPayday && lastPayday !== today) {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+
+      window.utools.dbStorage.setItem(PAYDAY_KEY, today);
+    }
+  } catch (error) {
+    console.error('Failed to check payday:', error);
+  }
+};
+
 utools.onPluginEnter((action) => {
   console.log(action);
   detach.value = utools.getWindowType() !== 'main';
+  checkPayday();
 });
 
 onMounted(() => {
   fetchHolidayData();
+  checkPayday();
 });
 </script>
 <style scoped lang="less">

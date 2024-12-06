@@ -1,6 +1,6 @@
 <template>
   <div class="arrange_container">
-    <div class="arrange_year">{{ holidayData.year }} 年放假安排</div>
+    <PageTitle title="放假安排" />
 
     <div class="arrange_list">
       <a-card
@@ -57,6 +57,7 @@ import { ref, computed } from 'vue';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 import { holidayData } from '@/store/AppStore';
+import PageTitle from '@/components/PageTitle/index.vue';
 
 const router = useRouter();
 
@@ -103,13 +104,6 @@ const goToGuide = (holiday) => {
   margin: 0 auto;
 }
 
-.arrange_year {
-  font-size: 24px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
 .arrange_list {
   display: flex;
   flex-direction: column;
@@ -118,7 +112,6 @@ const goToGuide = (holiday) => {
 
 .arrange_card {
   border-radius: 8px;
-  margin-bottom: 16px;
 
   :deep(.arco-card-header) {
     border-bottom: none;
