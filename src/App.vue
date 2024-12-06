@@ -29,7 +29,7 @@
   </a-layout>
   <Appreciate />
 </template>
-<script lang="ts" setup>
+<script setup>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
@@ -114,12 +114,29 @@ utools.onPluginEnter((action) => {
   console.log(action);
   detach.value = utools.getWindowType() !== 'main';
   checkPayday();
+
+  if (action.code === 'launch') {
+    const map = {
+      请假攻略: '/guide',
+      请假指南: '/guide',
+      假期余额: '/balance',
+      假期安排: '/arrange',
+      今年假期: '/arrange',
+      放假安排: '/arrange',
+    };
+    const payload = map[action.payload];
+    if (payload) {
+      router.push(payload);
+    }
+  }
 });
 
 onMounted(() => {
   fetchHolidayData();
   checkPayday();
 });
+
+const fishStatsRef = ref(null);
 </script>
 <style scoped lang="less">
 .main {
