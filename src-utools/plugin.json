@@ -18,10 +18,10 @@
       "icon": "public/logo.png",
       "platform": ["win32", "darwin", "linux"],
       "cmds": [
+        "假期安排",
         "请假攻略",
         "请假指南",
         "假期余额",
-        "假期安排",
         "今年假期",
         "放假安排"
       ]
