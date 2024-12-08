@@ -14,7 +14,7 @@
   "features": [
     {
       "code": "launch",
-      "explain": "vite-utools-template",
+      "explain": "假期导航",
       "icon": "public/logo.png",
       "platform": ["win32", "darwin", "linux"],
       "cmds": [

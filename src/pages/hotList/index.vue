@@ -469,7 +469,7 @@ onMounted(async () => {
 
 .setting_content {
   padding: 0 2px;
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
 
