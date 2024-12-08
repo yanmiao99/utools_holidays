@@ -2,6 +2,9 @@
   <div class="page_title_container">
     <div class="page_title">{{ holidayData.year }} 年{{ title }}</div>
     <div class="page_actions">
+      <div class="extra_actions">
+        <slot name="extra"></slot>
+      </div>
       <FishStats />
       <ThemeSwitch />
     </div>
@@ -39,7 +42,17 @@ defineProps({
   .page_actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    .extra_actions {
+      :deep(.arco-btn) {
+        color: var(--color-text-1);
+        font-size: 20px;
+
+        &:hover {
+          background-color: var(--color-fill-3);
+        }
+      }
+    }
   }
 }
 </style>
