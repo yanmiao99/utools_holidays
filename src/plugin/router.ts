@@ -24,6 +24,11 @@ const router = createRouter({
       path: '/balance',
       component: () => import('@/pages/balance/index.vue'),
     },
+    {
+      name: '今日热榜',
+      path: '/hotList',
+      component: () => import('@/pages/hotList/index.vue'),
+    },
   ],
 });
 

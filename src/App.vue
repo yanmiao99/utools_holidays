@@ -44,6 +44,11 @@ const selectedKeys = ref(['/arrange']);
 
 const routerMenu = ref([
   {
+    key: '/hotList',
+    icon: 'IconFire',
+    title: '今日热榜',
+  },
+  {
     key: '/arrange',
     icon: 'IconLocation',
     title: '假期安排',
