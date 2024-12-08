@@ -21,70 +21,88 @@
           :span="12"
           v-for="platform in displayedPlatforms"
           :key="platform.name">
-          <div class="platform_card">
-            <!-- 平台头部 -->
-            <div class="platform_header">
-              <div class="platform_info">
-                <img
-                  class="platform_icon"
-                  :src="platformIcon(platform.name)"
-                  alt="平台图标" />
-                <span class="platform_name">{{ platform.title }}</span>
+          <transition
+            appear
+            name="fade-slide">
+            <div class="platform_card">
+              <!-- 平台头部 -->
+              <div class="platform_header">
+                <div class="platform_info">
+                  <img
+                    class="platform_icon"
+                    :src="platformIcon(platform.name)"
+                    :alt="platform.title" />
+                  <span class="platform_name">{{ platform.title }}</span>
+                  <transition name="fade">
+                    <span
+                      class="update_time"
+                      v-if="platform.updateTime">
+                      更新于
+                      {{ formatTime(platform.updateTime) }}
+                    </span>
+                  </transition>
+                </div>
                 <span
-                  class="update_time"
-                  v-if="platform.updateTime">
-                  更新于
-                  {{ formatTime(platform.updateTime) }}
+                  class="platform_tag"
+                  @click.stop="refreshPlatform(platform)"
+                  :class="{ is_loading: platform.isLoading }">
+                  <transition
+                    name="fade"
+                    mode="out-in">
+                    <icon-refresh v-if="!platform.isLoading" />
+                    <icon-loading v-else />
+                  </transition>
+                  <transition
+                    name="fade"
+                    mode="out-in">
+                    <span>{{
+                      platform.isLoading ? '更新中...' : '立即刷新'
+                    }}</span>
+                  </transition>
                 </span>
               </div>
-              <span
-                class="platform_tag"
-                @click.stop="refreshPlatform(platform)"
-                :class="{ is_loading: platform.isLoading }">
-                <icon-refresh v-if="!platform.isLoading" />
-                <icon-loading v-else />
-                {{ platform.isLoading ? '更新中...' : '立即刷新' }}
-              </span>
-            </div>
 
-            <!-- 热榜列表 -->
-            <div
-              class="hot_list_content"
-              v-if="!loading">
+              <!-- 热榜列表 -->
               <div
-                class="hot_item"
-                v-for="(news, idx) in platform.data"
-                :key="news.id"
-                @click="goToDetail(news.mobileUrl || news.url)">
-                <div
-                  class="hot_index"
-                  :class="{
-                    top_1: idx === 0,
-                    top_2: idx === 1,
-                    top_3: idx === 2,
-                  }">
-                  {{ idx + 1 }}
-                </div>
-                <div class="hot_title">{{ news.title }}</div>
+                class="hot_list_content"
+                v-if="!loading">
+                <transition-group name="list">
+                  <div
+                    class="hot_item"
+                    v-for="(news, idx) in platform.data"
+                    :key="`${platform.name}-${news.id || idx}`"
+                    @click="goToDetail(news.mobileUrl || news.url)">
+                    <div
+                      class="hot_index"
+                      :class="{
+                        top_1: idx === 0,
+                        top_2: idx === 1,
+                        top_3: idx === 2,
+                      }">
+                      {{ idx + 1 }}
+                    </div>
+                    <div class="hot_title">{{ news.title }}</div>
+                  </div>
+                </transition-group>
+              </div>
+
+              <!-- 加载占位 -->
+              <div
+                class="skeleton_content"
+                v-else>
+                <a-skeleton
+                  :animation="true"
+                  :loading="loading">
+                  <div
+                    class="skeleton_item"
+                    v-for="i in 8"
+                    :key="i">
+                    <a-skeleton-line :rows="1" />
+                  </div>
+                </a-skeleton>
               </div>
             </div>
-
-            <!-- 加载占位 -->
-            <div
-              class="skeleton_content"
-              v-else>
-              <a-skeleton
-                :animation="true"
-                :loading="loading">
-                <div
-                  class="skeleton_item"
-                  v-for="i in 8"
-                  :key="i">
-                  <a-skeleton-line :rows="1" />
-                </div>
-              </a-skeleton>
-            </div>
-          </div>
+          </transition>
         </a-col>
       </a-row>
     </div>
@@ -379,6 +397,7 @@ onMounted(async () => {
       .hot_list_content {
         height: 300px;
         overflow: auto;
+        overflow-x: hidden;
 
         .hot_item {
           display: flex;
@@ -387,9 +406,13 @@ onMounted(async () => {
           cursor: pointer;
           background: var(--color-bg-2);
           border-radius: 4px;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
 
           &:hover {
             background: var(--color-fill-2);
+            transform: translateX(4px);
+            padding: 6px 4px;
           }
 
           .hot_index {
@@ -642,7 +665,7 @@ onMounted(async () => {
   }
 }
 
-// 拖拽时���占位样式调整
+// 拖拽时的占位样式调整
 :deep(.ghost) {
   grid-column: span 1; // 确保占位元素只占一格
   // ... 其他样式保持不变 ...
@@ -652,5 +675,139 @@ onMounted(async () => {
 .dragging {
   grid-column: span 1; // 确保拖拽元素只占一格
   // ... 其他样式保持不变 ...
+}
+
+// 添加过渡动画
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-slide-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+// 添加加载动画
+@keyframes loading {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.platform_card {
+  transform: translateZ(0); // 开启硬件加速
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+
+    .platform_header {
+      .platform_info {
+        .platform_icon {
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+
+  .platform_header {
+    .platform_info {
+      .platform_icon {
+        transition: transform 0.3s ease;
+      }
+
+      .platform_name {
+        transition: color 0.3s ease;
+      }
+    }
+
+    .platform_tag {
+      transition: all 0.3s ease;
+
+      .arco-icon {
+        transition: transform 0.3s ease;
+      }
+
+      &:hover {
+        .arco-icon {
+          transform: rotate(180deg);
+        }
+      }
+
+      &.is_loading {
+        .arco-icon {
+          animation: loading 1s linear infinite;
+        }
+      }
+    }
+  }
+
+  .hot_item {
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--color-primary);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    &:hover {
+      transform: translateX(4px);
+      padding-left: 4px;
+
+      &::after {
+        opacity: 0.05;
+      }
+
+      .hot_title {
+        color: var(--color-primary);
+      }
+    }
+
+    .hot_index {
+      transition: all 0.3s ease;
+    }
+
+    .hot_title {
+      transition: all 0.3s ease;
+    }
+  }
 }
 </style>

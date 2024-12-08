@@ -128,6 +128,8 @@ utools.onPluginEnter((action) => {
       假期安排: '/arrange',
       今年假期: '/arrange',
       放假安排: '/arrange',
+      今日热榜: '/hotList',
+      热搜榜单: '/hotList',
     };
     const payload = map[action.payload];
     if (payload) {
@@ -158,11 +160,6 @@ const fishStatsRef = ref(null);
     width: 100%;
     background: var(--color-bg-2);
   }
-}
-
-// 隐藏所有的滚动条
-::-webkit-scrollbar {
-  display: none;
 }
 
 // 修改过渡动画样式
