@@ -44,7 +44,11 @@ async function openFile(options) {
 // 获取假期数据
 async function getHolidayData() {
     return new Promise((resolve, reject) => {
-        https.get('https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json', (res) => {
+        // https://videoapi.funjs.top/public/Holidays.json
+
+        // https://s3.cn-north-1.amazonaws.com.cn/general.lesignstatic.com/config/jiaqi.json
+
+        https.get('https://videoapi.funjs.top/public/Holidays.json', (res) => {
             let data = '';
 
             res.on('data', (chunk) => {

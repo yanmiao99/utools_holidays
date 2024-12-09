@@ -166,7 +166,7 @@ import dayjs from 'dayjs';
 import PageTitle from '@/components/PageTitle/index.vue';
 import VueDraggable from 'vuedraggable';
 import TransitionGroupItem from '@/components/TransitionGroupItem/index.vue';
-
+import platformList from './platformList';
 const STORAGE_KEY = 'HOT_LIST_SETTINGS';
 
 const loading = ref(true);
@@ -178,34 +178,6 @@ const platformIcon = (name) => {
   return new URL(`../../assets/logoImages/${name}.png`, import.meta.url).href;
 };
 
-// 平台配置列表
-const platformList = [
-  { name: 'bilibili', title: '哔哩哔哩', icon: 'bilibili' },
-  { name: 'douyin', title: '抖音', icon: 'douyin' },
-  { name: 'zhihu', title: '知乎', icon: 'zhihu' },
-  { name: 'weibo', title: '微博', icon: 'weibo' },
-  { name: '36kr', title: '36氪', icon: '36kr' },
-  { name: 'baidu', title: '百度', icon: 'baidu' },
-  { name: 'sspai', title: '少数派', icon: 'sspai' },
-  { name: 'ithome', title: 'IT之家', icon: 'ithome' },
-  { name: 'toutiao', title: '今日头条', icon: 'toutiao' },
-  { name: 'thepaper', title: '澎湃新闻', icon: 'thepaper' },
-  { name: 'juejin', title: '掘金', icon: 'juejin' },
-  { name: 'tieba', title: '贴吧', icon: 'tieba' },
-  { name: 'qq-news', title: '腾讯新闻', icon: 'qq-news' },
-  { name: 'douban-movie', title: '豆瓣电影', icon: 'douban-movie' },
-  { name: 'genshin', title: '原神', icon: 'genshin' },
-  { name: 'starrail', title: '星穹铁道', icon: 'starrail' },
-  { name: 'netease-news', title: '网易新闻', icon: 'netease-news' },
-  { name: 'lol', title: '英雄联盟', icon: 'lol' },
-  { name: 'douban-group', title: '豆瓣小组', icon: 'douban-group' },
-  { name: 'weread', title: '微信读书', icon: 'weread' },
-  { name: 'hellogithub', title: 'HelloGithub', icon: 'hellogithub' },
-  { name: 'ngabbs', title: 'NGA论坛', icon: 'ngabbs' },
-  { name: 'zhihu-daily', title: '知乎日报', icon: 'zhihu-daily' },
-  { name: 'jianshu', title: '简书', icon: 'jianshu' },
-];
-
 // 设置相关的状态
 const settingVisible = ref(false);
 const settingList = ref([]);
@@ -214,23 +186,36 @@ const settingList = ref([]);
 const getSettings = () => {
   const settings = window.utools.dbStorage.getItem(STORAGE_KEY);
   if (settings) {
-    return settings;
+    // 确保返回的数据包含所有平台
+    const existingPlatforms = new Set(settings.map((s) => s.name));
+    const newPlatforms = platformList
+      .filter((p) => !existingPlatforms.has(p.name))
+      .map((p) => ({
+        name: p.name,
+        title: p.title,
+        enabled: true,
+        order: settings.length + 1,
+      }));
+
+    return [...settings, ...newPlatforms];
   }
-  // 默认全部启用
-  return platformList.map((item) => ({
+
+  // 默认全部启用，并设置初始排序
+  return platformList.map((item, index) => ({
     ...item,
     enabled: true,
+    order: index,
   }));
 };
 
 // 保存设置
 const saveSettings = (settings) => {
-  // 处理数据，只保留需要的属性
-  const cleanSettings = settings.map((item) => ({
+  // 处理数据，保留需要的属性，包括排序信息
+  const cleanSettings = settings.map((item, index) => ({
     name: item.name,
     title: item.title,
-    icon: item.icon,
     enabled: item.enabled,
+    order: index, // 使用数组索引作为排序值
   }));
   window.utools.dbStorage.setItem(STORAGE_KEY, cleanSettings);
 };
@@ -257,8 +242,12 @@ const reloadData = async () => {
 
   try {
     const settings = getSettings();
-    const enabledPlatforms = settings.filter((p) => p.enabled);
-    await Promise.all(enabledPlatforms.map((platform) => loadData(platform)));
+    const sortedPlatforms = settings
+      .sort((a, b) => a.order - b.order)
+      .filter((p) => p.enabled);
+
+    // 并行加载所有平台数据
+    await Promise.all(sortedPlatforms.map((platform) => loadData(platform)));
   } catch (error) {
     console.error('Failed to reload platform data:', error);
   } finally {
@@ -279,19 +268,19 @@ const formatTime = (time) => {
 
 // 刷新单个平台数据
 const refreshPlatform = async (platform) => {
-  // 如果正在加载中，则不执行
   if (platform.isLoading) return;
-
-  // 设置加载状态
   platform.isLoading = true;
 
   try {
     const res = await getHotList({ platform: platform.name, cache: false });
     if (res) {
-      // 找到并更新对应平台的数据
       const index = platforms.value.findIndex((p) => p.name === platform.name);
       if (index !== -1) {
-        platforms.value[index] = { ...res, isLoading: false };
+        // 保持原有的 order
+        const order = platforms.value[index].order;
+        platforms.value[index] = { ...res, isLoading: false, order };
+        // 确保排序正确
+        platforms.value.sort((a, b) => a.order - b.order);
         displayedPlatforms.value = [...platforms.value];
       }
     }
@@ -302,26 +291,60 @@ const refreshPlatform = async (platform) => {
   }
 };
 
-// 修改加载数据函数，添加 isLoading 状态
+// 修改加载数据函数
 const loadData = async (platform) => {
+  // 先添加一个加载中的占位数据
+  platforms.value.push({
+    name: platform.name,
+    title: platform.title,
+    isLoading: true,
+    order: platform.order,
+    data: [], // 空数据
+    updateTime: null,
+  });
+  // 保持排序
+  platforms.value.sort((a, b) => a.order - b.order);
+  displayedPlatforms.value = [...platforms.value];
+
   try {
     const res = await getHotList({ platform: platform.name, cache: true });
     if (res) {
-      platforms.value.push({ ...res, isLoading: false });
-      displayedPlatforms.value = [...platforms.value];
+      // 找到并更新对应平台的数据
+      const index = platforms.value.findIndex((p) => p.name === platform.name);
+      if (index !== -1) {
+        platforms.value[index] = {
+          ...res,
+          isLoading: false,
+          order: platform.order,
+        };
+        displayedPlatforms.value = [...platforms.value];
+      }
     }
   } catch (error) {
     console.error(`Failed to load data for ${platform.name}:`, error);
+    // 出错时也要更新状态
+    const index = platforms.value.findIndex((p) => p.name === platform.name);
+    if (index !== -1) {
+      platforms.value[index].isLoading = false;
+      displayedPlatforms.value = [...platforms.value];
+    }
   }
 };
 
 // 修改初始化逻辑
 onMounted(async () => {
   loading.value = true;
+  platforms.value = [];
+  displayedPlatforms.value = [];
+
   try {
     const settings = getSettings();
-    const enabledPlatforms = settings.filter((p) => p.enabled);
-    await Promise.all(enabledPlatforms.map((platform) => loadData(platform)));
+    const sortedPlatforms = settings
+      .sort((a, b) => a.order - b.order)
+      .filter((p) => p.enabled);
+
+    // 并行加载所有平台数据
+    await Promise.all(sortedPlatforms.map((platform) => loadData(platform)));
   } catch (error) {
     console.error('Failed to load platform data:', error);
   } finally {
@@ -402,7 +425,7 @@ onMounted(async () => {
         .hot_item {
           display: flex;
           align-items: flex-start;
-          padding: 6px 0;
+          padding: 6px 4px;
           cursor: pointer;
           background: var(--color-bg-2);
           border-radius: 4px;
@@ -411,8 +434,7 @@ onMounted(async () => {
 
           &:hover {
             background: var(--color-fill-2);
-            transform: translateX(4px);
-            padding: 6px 4px;
+            // transform: translateX(4px);
           }
 
           .hot_index {
@@ -772,7 +794,7 @@ onMounted(async () => {
   }
 
   .hot_item {
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 
@@ -789,9 +811,6 @@ onMounted(async () => {
     }
 
     &:hover {
-      transform: translateX(4px);
-      padding-left: 4px;
-
       &::after {
         opacity: 0.05;
       }
