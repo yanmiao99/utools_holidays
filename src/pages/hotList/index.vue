@@ -357,7 +357,6 @@ onMounted(async () => {
 .hot_list {
   padding: 20px;
   background: var(--color-fill-2);
-
   .content {
     .platform_card {
       background: var(--color-bg-2);
@@ -387,6 +386,7 @@ onMounted(async () => {
             width: 18px;
             height: 18px;
             vertical-align: bottom;
+            background: var(--color-bg-1);
           }
 
           .platform_name {
@@ -429,12 +429,10 @@ onMounted(async () => {
           cursor: pointer;
           background: var(--color-bg-2);
           border-radius: 4px;
-          transition: all 0.2s ease;
           box-sizing: border-box;
 
           &:hover {
             background: var(--color-fill-2);
-            // transform: translateX(4px);
           }
 
           .hot_index {
@@ -446,6 +444,7 @@ onMounted(async () => {
             margin-right: 12px;
             flex-shrink: 0;
             border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
 
             &.top_1 {
               color: #fff;
@@ -516,10 +515,8 @@ onMounted(async () => {
     background: var(--color-bg-2);
     border: 1px solid var(--color-border-2);
     border-radius: 8px;
-    transition: all 0.2s ease;
     user-select: none;
     transform: translate(0, 0);
-    transition: all 0.3s ease;
 
     &:hover {
       transform: translateX(2px);
@@ -555,7 +552,7 @@ onMounted(async () => {
       padding: 4px;
       margin: -4px;
       border-radius: 4px;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
 
       &:hover {
         background: var(--color-fill-2);
@@ -745,9 +742,7 @@ onMounted(async () => {
 }
 
 .platform_card {
-  transform: translateZ(0); // 开启硬件加速
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
+  transition: transform 0.3s ease;
   &:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-2);
@@ -794,7 +789,6 @@ onMounted(async () => {
   }
 
   .hot_item {
-    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
 

@@ -13,7 +13,7 @@
   },
   "features": [
     {
-      "code": "launch",
+      "code": "holidays",
       "explain": "假期导航",
       "icon": "public/logo.png",
       "platform": ["win32", "darwin", "linux"],
@@ -23,11 +23,15 @@
         "请假指南",
         "假期余额",
         "今年假期",
-        "放假安排",
-        "今日热榜",
-        "热搜榜单",
-        "摸鱼日历"
+        "放假安排"
       ]
+    },
+    {
+      "code": "hotList",
+      "explain": "今日热榜",
+      "icon": "public/hotListLogo.png",
+      "platform": ["win32", "darwin", "linux"],
+      "cmds": ["今日热榜", "热搜榜单"]
     }
   ]
 }
