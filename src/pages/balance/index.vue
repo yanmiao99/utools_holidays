@@ -3,100 +3,146 @@
     <PageTitle title="假期余额" />
 
     <div class="balance_content">
-      <div class="balance_overview">
-        <div class="balance_overview_bg"></div>
-        <div class="balance_overview_header">
-          <div class="balance_overview_title">
-            <span class="balance_overview_label">总假期天数</span>
-            <span class="balance_overview_days">
-              {{ getTotalDays() }}天
-              <a-tooltip position="top">
-                <template #content>
-                  包含 {{ getWeekendDays() }} 天周末
-                </template>
-                <icon-info-circle class="info-icon" />
-              </a-tooltip>
-            </span>
+      <!-- 添加骨架屏 -->
+      <template v-if="loading">
+        <div class="balance_overview skeleton_overview">
+          <a-skeleton animation>
+            <a-space
+              direction="vertical"
+              style="width: 100%">
+              <a-skeleton-line :rows="2" />
+              <div style="margin: 20px 0">
+                <a-skeleton-line :rows="2" />
+              </div>
+            </a-space>
+          </a-skeleton>
+        </div>
+
+        <div class="balance_list">
+          <a-skeleton animation>
+            <a-space
+              direction="vertical"
+              style="width: 100%"
+              :size="16">
+              <a-card
+                v-for="i in 3"
+                :key="i"
+                class="balance_card">
+                <a-skeleton-line :rows="3" />
+              </a-card>
+            </a-space>
+          </a-skeleton>
+        </div>
+      </template>
+
+      <!-- 原有内容 -->
+      <template v-else>
+        <div class="balance_overview">
+          <div class="balance_overview_bg"></div>
+          <div class="balance_overview_header">
+            <div class="balance_overview_title">
+              <div class="balance_overview_label">总假期天数</div>
+              <div class="balance_overview_days">
+                {{ getTotalDays() }}天
+                <a-tooltip position="top">
+                  <template #content>
+                    包含 {{ getWeekendDays() }} 天周末
+                  </template>
+                  <icon-info-circle class="info-icon" />
+                </a-tooltip>
+              </div>
+            </div>
+            <div class="balance_overview_info">
+              <div class="balance_overview_used">
+                节假日已休 <em>{{ getUsedDays() }}</em> 天
+              </div>
+              <div class="balance_overview_divider"></div>
+              <div class="balance_overview_used">
+                周末已休 <em>{{ getUsedWeekendDays() }}</em> 天
+              </div>
+              <div class="balance_overview_divider"></div>
+              <div class="balance_overview_remaining">
+                剩余 <em>{{ getRemainingDays() }}</em> 天
+              </div>
+            </div>
           </div>
-          <div class="balance_overview_info">
-            <span class="balance_overview_used">
-              节假日已休 <em>{{ getUsedDays() }}</em> 天
-            </span>
-            <span class="balance_overview_divider"></span>
-            <span class="balance_overview_used">
-              周末已休 <em>{{ getUsedWeekendDays() }}</em> 天
-            </span>
-            <span class="balance_overview_divider"></span>
-            <span class="balance_overview_remaining">
-              剩余 <em>{{ getRemainingDays() }}</em> 天
-            </span>
+          <div class="balance_overview_progress">
+            <div class="progress_label">节假日进度</div>
+            <a-progress
+              :percent="getTotalProgressPercent()"
+              :color="getTotalProgressColor()"
+              :track-color="getTrackColor()"
+              :stroke-width="12"
+              size="large"
+              :animation="true" />
+            <div class="progress_label">周末进度</div>
+            <a-progress
+              :percent="getWeekendProgressPercent()"
+              :color="getTotalProgressColor()"
+              :track-color="getTrackColor()"
+              :stroke-width="12"
+              size="large"
+              :animation="true" />
           </div>
         </div>
-        <div class="balance_overview_progress">
-          <div class="progress_label">节假日进度</div>
-          <a-progress
-            :percent="getTotalProgressPercent()"
-            :color="getTotalProgressColor()"
-            :track-color="getTrackColor()"
-            :stroke-width="12"
-            size="large"
-            :animation="true" />
-          <div class="progress_label">周末进度</div>
-          <a-progress
-            :percent="getWeekendProgressPercent()"
-            :color="getTotalProgressColor()"
-            :track-color="getTrackColor()"
-            :stroke-width="12"
-            size="large"
-            :animation="true" />
+
+        <div class="balance_list">
+          <a-card
+            v-for="holiday in holidayList"
+            :key="holiday.name"
+            class="balance_card">
+            <div class="balance_card_header">
+              <div class="balance_card_title">
+                {{ holiday.name }}
+                <span class="balance_card_en_name">{{ holiday.enName }}</span>
+              </div>
+              <div class="balance_card_days">
+                {{ calculateDays(holiday) }}天
+              </div>
+            </div>
+
+            <div class="balance_card_content">
+              <div class="balance_card_progress">
+                <a-progress
+                  :percent="getProgressPercent(holiday)"
+                  :color="getProgressColor(holiday)"
+                  :track-color="getTrackColor()"
+                  size="large"
+                  :animation="true" />
+              </div>
+              <div class="balance_card_info">
+                <span class="balance_card_date">
+                  {{ formatDateRange(holiday.start, holiday.end) }}
+                </span>
+                <span
+                  v-if="getCountdown(holiday) > 0"
+                  class="balance_card_countdown">
+                  还有 {{ getCountdown(holiday) }} 天
+                </span>
+              </div>
+            </div>
+          </a-card>
         </div>
-      </div>
-
-      <div class="balance_list">
-        <a-card
-          v-for="holiday in holidayList"
-          :key="holiday.name"
-          class="balance_card">
-          <div class="balance_card_header">
-            <div class="balance_card_title">
-              {{ holiday.name }}
-              <span class="balance_card_en_name">{{ holiday.enName }}</span>
-            </div>
-            <div class="balance_card_days">{{ calculateDays(holiday) }}天</div>
-          </div>
-
-          <div class="balance_card_content">
-            <div class="balance_card_progress">
-              <a-progress
-                :percent="getProgressPercent(holiday)"
-                :color="getProgressColor(holiday)"
-                :track-color="getTrackColor()"
-                size="large"
-                :animation="true" />
-            </div>
-            <div class="balance_card_info">
-              <span class="balance_card_date">
-                {{ formatDateRange(holiday.start, holiday.end) }}
-              </span>
-              <span
-                v-if="getCountdown(holiday) > 0"
-                class="balance_card_countdown">
-                还有 {{ getCountdown(holiday) }} 天
-              </span>
-            </div>
-          </div>
-        </a-card>
-      </div>
+      </template>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { holidayData } from '@/store/AppStore';
 import PageTitle from '@/components/PageTitle/index.vue';
 import { IconInfoCircle } from '@arco-design/web-vue/es/icon';
+
+const loading = ref(true);
+
+onMounted(() => {
+  // 模拟数据加载
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+});
 
 const holidayList = computed(() =>
   holidayData.value.vacation.filter((v) => v.start && v.end)
@@ -466,6 +512,18 @@ const getWeekendProgressPercent = () => {
           }
         }
       }
+    }
+  }
+
+  .skeleton_overview {
+    padding: 24px;
+    margin-bottom: 20px;
+    border-radius: 12px;
+  }
+
+  .balance_list {
+    :deep(.arco-card) {
+      border-radius: 8px;
     }
   }
 }

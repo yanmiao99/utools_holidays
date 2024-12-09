@@ -2,7 +2,28 @@
   <div class="arrange_container">
     <PageTitle title="放假安排" />
 
-    <div class="arrange_list">
+    <!-- 添加骨架屏 -->
+    <div
+      v-if="loading"
+      class="arrange_list">
+      <a-skeleton animation>
+        <a-space
+          direction="vertical"
+          style="width: 100%"
+          :size="16">
+          <a-card
+            v-for="i in 3"
+            :key="i"
+            class="arrange_card">
+            <a-skeleton-line :rows="3" />
+          </a-card>
+        </a-space>
+      </a-skeleton>
+    </div>
+
+    <div
+      v-else
+      class="arrange_list">
       <a-card
         v-for="holiday in holidayList"
         :key="holiday.name"
@@ -53,13 +74,22 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { useRouter } from 'vue-router';
 import { holidayData } from '@/store/AppStore';
 import PageTitle from '@/components/PageTitle/index.vue';
 
 const router = useRouter();
+
+const loading = ref(true);
+
+onMounted(() => {
+  // 模拟数据加载
+  setTimeout(() => {
+    loading.value = false;
+  }, 1000);
+});
 
 const holidayList = computed(() =>
   holidayData.value.vacation.filter((v) => v.start && v.end)
@@ -107,11 +137,13 @@ const goToGuide = (holiday) => {
   flex-direction: column;
   gap: 16px;
   padding: 20px;
+
+  :deep(.arco-card) {
+    border-radius: 8px;
+  }
 }
 
 .arrange_card {
-  border-radius: 8px;
-
   :deep(.arco-card-header) {
     border-bottom: none;
   }
