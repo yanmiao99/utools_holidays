@@ -15,7 +15,9 @@
       </template>
     </PageTitle>
     <!-- 内容区域 -->
-    <div class="content">
+    <div
+      class="content"
+      ref="scrollContainer">
       <a-row :gutter="16">
         <a-col
           :span="12"
@@ -24,7 +26,10 @@
           <transition
             appear
             name="fade-slide">
-            <div class="platform_card">
+            <div
+              class="platform_card"
+              :class="{ 'is-loading': loading || !platform.data }"
+              ref="platformCards">
               <!-- 平台头部 -->
               <div class="platform_header">
                 <div class="platform_info">
@@ -65,7 +70,7 @@
               <!-- 热榜列表 -->
               <div
                 class="hot_list_content"
-                v-if="!loading">
+                v-if="!loading && platform.data">
                 <transition-group name="list">
                   <div
                     class="hot_item"
@@ -89,15 +94,18 @@
               <!-- 加载占位 -->
               <div
                 class="skeleton_content"
-                v-else>
+                v-else-if="loading || !platform.data">
                 <a-skeleton
                   :animation="true"
-                  :loading="loading">
+                  :loading="true">
                   <div
                     class="skeleton_item"
-                    v-for="i in 8"
+                    v-for="i in 10"
                     :key="i">
-                    <a-skeleton-line :rows="1" />
+                    <div class="skeleton_row">
+                      <div class="skeleton_index"></div>
+                      <a-skeleton-line :rows="1" />
+                    </div>
                   </div>
                 </a-skeleton>
               </div>
@@ -112,21 +120,30 @@
       v-model="settingVisible"
       :settings="getSettings()"
       @save="handleSettingSave" />
+
+    <!-- 使用自定义返回顶部组件 -->
+    <BackToTop
+      target=".hot_list"
+      :visibility-height="200"
+      :duration="300" />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { getHotList } from '@/api/hotList';
 import dayjs from 'dayjs';
 import PageTitle from '@/components/PageTitle/index.vue';
 import HotListSetting from '@/components/HotListSetting/index.vue';
 import platformList from './platformList';
+import BackToTop from '@/components/BackToTop/index.vue';
 const STORAGE_KEY = 'HOT_LIST_SETTINGS';
 
 const loading = ref(true);
 const platforms = ref([]);
 const displayedPlatforms = ref([]);
+const platformCards = ref([]);
+const observedPlatforms = new Set();
 
 // vue3 动态引入图片
 const platformIcon = (name) => {
@@ -223,10 +240,8 @@ const refreshPlatform = async (platform) => {
     if (res) {
       const index = platforms.value.findIndex((p) => p.name === platform.name);
       if (index !== -1) {
-        // 保持原有的 order
         const order = platforms.value[index].order;
         platforms.value[index] = { ...res, isLoading: false, order };
-        // 确保排序正确
         platforms.value.sort((a, b) => a.order - b.order);
         displayedPlatforms.value = [...platforms.value];
       }
@@ -278,20 +293,90 @@ const loadData = async (platform) => {
   }
 };
 
+// 创建观察器
+const createObserver = () => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const platform = displayedPlatforms.value.find(
+            (p) => p.name === entry.target.dataset.platform
+          );
+          if (platform && !observedPlatforms.has(platform.name)) {
+            loadPlatformData(platform);
+            observedPlatforms.add(platform.name);
+          }
+        }
+      });
+    },
+    {
+      root: null,
+      rootMargin: '100px', // 提前 100px 开始加载
+      threshold: 0.1,
+    }
+  );
+  return observer;
+};
+
+// 初始化平台数据（不包含具体内容）
+const initPlatformStructure = (platform) => ({
+  name: platform.name,
+  title: platform.title,
+  isLoading: false,
+  order: platform.order,
+  data: null,
+  updateTime: null,
+});
+
+// 加载单个平台数据
+const loadPlatformData = async (platform) => {
+  const index = platforms.value.findIndex((p) => p.name === platform.name);
+  if (index === -1) return;
+
+  platforms.value[index].isLoading = true;
+  displayedPlatforms.value = [...platforms.value];
+
+  try {
+    const res = await getHotList({ platform: platform.name, cache: true });
+    if (res) {
+      platforms.value[index] = {
+        ...res,
+        isLoading: false,
+        order: platform.order,
+      };
+      platforms.value.sort((a, b) => a.order - b.order);
+      displayedPlatforms.value = [...platforms.value];
+    }
+  } catch (error) {
+    console.error(`Failed to load data for ${platform.name}:`, error);
+    platforms.value[index].isLoading = false;
+    displayedPlatforms.value = [...platforms.value];
+  }
+};
+
 // 修改初始化逻辑
 onMounted(async () => {
   loading.value = true;
-  platforms.value = [];
-  displayedPlatforms.value = [];
-
   try {
     const settings = getSettings();
     const sortedPlatforms = settings
       .sort((a, b) => a.order - b.order)
       .filter((p) => p.enabled);
 
-    // 并行加载所有平台数据
-    await Promise.all(sortedPlatforms.map((platform) => loadData(platform)));
+    // 只初始化平台结构，不加载数据
+    platforms.value = sortedPlatforms.map(initPlatformStructure);
+    displayedPlatforms.value = [...platforms.value];
+
+    // 等待 DOM 更新后设置观察器
+    await nextTick();
+    const observer = createObserver();
+
+    // 为每个平台卡片添加观察器
+    const cards = document.querySelectorAll('.platform_card');
+    cards.forEach((card, index) => {
+      card.dataset.platform = sortedPlatforms[index].name;
+      observer.observe(card);
+    });
   } catch (error) {
     console.error('Failed to load platform data:', error);
   } finally {
@@ -304,16 +389,26 @@ onMounted(async () => {
 .hot_list {
   padding: 20px;
   background: var(--color-fill-2);
+  height: 100%;
+  overflow: auto;
+  position: relative;
+
   .content {
+    height: auto;
+    min-height: calc(100% - 60px); // 减去 PageTitle 的高度
     .platform_card {
       background: var(--color-bg-2);
       border-radius: 8px;
       padding: 16px;
-      height: 100%;
       box-shadow: var(--shadow-1);
       margin-bottom: 16px;
-      &:hover {
-        box-shadow: var(--shadow-2);
+      display: flex;
+      flex-direction: column;
+
+      &.is-loading {
+        .platform_header {
+          opacity: 0.7;
+        }
       }
 
       .platform_header {
@@ -365,9 +460,10 @@ onMounted(async () => {
       }
 
       .hot_list_content {
-        height: 300px;
         overflow: auto;
         overflow-x: hidden;
+        min-height: 300px;
+        height: 300px;
 
         .hot_item {
           display: flex;
@@ -427,8 +523,35 @@ onMounted(async () => {
       }
 
       .skeleton_content {
+        min-height: 300px;
+        height: 300px;
+        padding: 4px;
+        overflow: hidden;
+
         .skeleton_item {
-          padding: 12px 0;
+          padding: 8px 4px;
+
+          .skeleton_row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            .skeleton_index {
+              width: 24px;
+              height: 24px;
+              border-radius: 8px;
+              background: var(--color-fill-3);
+              flex-shrink: 0;
+            }
+
+            :deep(.arco-skeleton-line) {
+              width: calc(100% - 36px);
+              .arco-skeleton-line-row {
+                height: 20px;
+                border-radius: 4px;
+              }
+            }
+          }
         }
       }
     }
