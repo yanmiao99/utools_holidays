@@ -2,87 +2,91 @@
   <div class="balance_container">
     <PageTitle title="假期余额" />
 
-    <div class="balance_overview">
-      <div class="balance_overview_bg"></div>
-      <div class="balance_overview_header">
-        <div class="balance_overview_title">
-          <span class="balance_overview_label">总假期天数</span>
-          <span class="balance_overview_days">
-            {{ getTotalDays() }}天
-            <a-tooltip position="top">
-              <template #content> 包含 {{ getWeekendDays() }} 天周末 </template>
-              <icon-info-circle class="info-icon" />
-            </a-tooltip>
-          </span>
-        </div>
-        <div class="balance_overview_info">
-          <span class="balance_overview_used">
-            节假日已休 <em>{{ getUsedDays() }}</em> 天
-          </span>
-          <span class="balance_overview_divider"></span>
-          <span class="balance_overview_used">
-            周末已休 <em>{{ getUsedWeekendDays() }}</em> 天
-          </span>
-          <span class="balance_overview_divider"></span>
-          <span class="balance_overview_remaining">
-            剩余 <em>{{ getRemainingDays() }}</em> 天
-          </span>
-        </div>
-      </div>
-      <div class="balance_overview_progress">
-        <div class="progress_label">节假日进度</div>
-        <a-progress
-          :percent="getTotalProgressPercent()"
-          :color="getTotalProgressColor()"
-          :track-color="getTrackColor()"
-          :stroke-width="12"
-          size="large"
-          :animation="true" />
-        <div class="progress_label">周末进度</div>
-        <a-progress
-          :percent="getWeekendProgressPercent()"
-          :color="getTotalProgressColor()"
-          :track-color="getTrackColor()"
-          :stroke-width="12"
-          size="large"
-          :animation="true" />
-      </div>
-    </div>
-
-    <div class="balance_list">
-      <a-card
-        v-for="holiday in holidayList"
-        :key="holiday.name"
-        class="balance_card">
-        <div class="balance_card_header">
-          <div class="balance_card_title">
-            {{ holiday.name }}
-            <span class="balance_card_en_name">{{ holiday.enName }}</span>
-          </div>
-          <div class="balance_card_days">{{ calculateDays(holiday) }}天</div>
-        </div>
-
-        <div class="balance_card_content">
-          <div class="balance_card_progress">
-            <a-progress
-              :percent="getProgressPercent(holiday)"
-              :color="getProgressColor(holiday)"
-              :track-color="getTrackColor()"
-              size="large"
-              :animation="true" />
-          </div>
-          <div class="balance_card_info">
-            <span class="balance_card_date">
-              {{ formatDateRange(holiday.start, holiday.end) }}
+    <div class="balance_content">
+      <div class="balance_overview">
+        <div class="balance_overview_bg"></div>
+        <div class="balance_overview_header">
+          <div class="balance_overview_title">
+            <span class="balance_overview_label">总假期天数</span>
+            <span class="balance_overview_days">
+              {{ getTotalDays() }}天
+              <a-tooltip position="top">
+                <template #content>
+                  包含 {{ getWeekendDays() }} 天周末
+                </template>
+                <icon-info-circle class="info-icon" />
+              </a-tooltip>
             </span>
-            <span
-              v-if="getCountdown(holiday) > 0"
-              class="balance_card_countdown">
-              还有 {{ getCountdown(holiday) }} 天
+          </div>
+          <div class="balance_overview_info">
+            <span class="balance_overview_used">
+              节假日已休 <em>{{ getUsedDays() }}</em> 天
+            </span>
+            <span class="balance_overview_divider"></span>
+            <span class="balance_overview_used">
+              周末已休 <em>{{ getUsedWeekendDays() }}</em> 天
+            </span>
+            <span class="balance_overview_divider"></span>
+            <span class="balance_overview_remaining">
+              剩余 <em>{{ getRemainingDays() }}</em> 天
             </span>
           </div>
         </div>
-      </a-card>
+        <div class="balance_overview_progress">
+          <div class="progress_label">节假日进度</div>
+          <a-progress
+            :percent="getTotalProgressPercent()"
+            :color="getTotalProgressColor()"
+            :track-color="getTrackColor()"
+            :stroke-width="12"
+            size="large"
+            :animation="true" />
+          <div class="progress_label">周末进度</div>
+          <a-progress
+            :percent="getWeekendProgressPercent()"
+            :color="getTotalProgressColor()"
+            :track-color="getTrackColor()"
+            :stroke-width="12"
+            size="large"
+            :animation="true" />
+        </div>
+      </div>
+
+      <div class="balance_list">
+        <a-card
+          v-for="holiday in holidayList"
+          :key="holiday.name"
+          class="balance_card">
+          <div class="balance_card_header">
+            <div class="balance_card_title">
+              {{ holiday.name }}
+              <span class="balance_card_en_name">{{ holiday.enName }}</span>
+            </div>
+            <div class="balance_card_days">{{ calculateDays(holiday) }}天</div>
+          </div>
+
+          <div class="balance_card_content">
+            <div class="balance_card_progress">
+              <a-progress
+                :percent="getProgressPercent(holiday)"
+                :color="getProgressColor(holiday)"
+                :track-color="getTrackColor()"
+                size="large"
+                :animation="true" />
+            </div>
+            <div class="balance_card_info">
+              <span class="balance_card_date">
+                {{ formatDateRange(holiday.start, holiday.end) }}
+              </span>
+              <span
+                v-if="getCountdown(holiday) > 0"
+                class="balance_card_countdown">
+                还有 {{ getCountdown(holiday) }} 天
+              </span>
+            </div>
+          </div>
+        </a-card>
+      </div>
     </div>
   </div>
 </template>
@@ -262,201 +266,204 @@ const getWeekendProgressPercent = () => {
 
 <style scoped lang="less">
 .balance_container {
-  padding: 20px;
-  max-width: 800px;
   margin: 0 auto;
 }
 
-.balance_overview {
-  background-color: var(--color-bg-2);
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 20px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
+.balance_content {
+  padding: 20px;
+  box-sizing: border-box;
 
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  // 背景装饰
-  .balance_overview_bg {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(
-      135deg,
-      rgba(var(--primary-6), 0.05) 0%,
-      rgba(var(--primary-6), 0) 100%
-    );
-    border-radius: 50%;
-    transform: translate(30%, -30%);
-  }
-
-  .balance_overview_header {
+  .balance_overview {
+    background-color: var(--color-bg-2);
+    border-radius: 12px;
+    padding: 24px;
     margin-bottom: 20px;
     position: relative;
-  }
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
 
-  .balance_overview_title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
-    font-size: 18px;
-    font-weight: bold;
-    color: var(--color-text-1);
+    &:hover {
+      transform: translateY(-2px);
+    }
 
-    .balance_overview_label {
+    // 背景装饰
+    .balance_overview_bg {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 200px;
+      height: 200px;
+      background: linear-gradient(
+        135deg,
+        rgba(var(--primary-6), 0.05) 0%,
+        rgba(var(--primary-6), 0) 100%
+      );
+      border-radius: 50%;
+      transform: translate(30%, -30%);
+    }
+
+    .balance_overview_header {
+      margin-bottom: 20px;
       position: relative;
-      padding-left: 12px;
-
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 16px;
-        background-color: rgb(var(--primary-6));
-        border-radius: 2px;
-      }
     }
 
-    .balance_overview_days {
-      font-size: 32px;
-      color: rgb(var(--primary-6));
-      font-weight: 600;
-      text-shadow: 0 2px 4px rgba(var(--primary-6), 0.2);
-
-      .info-icon {
-        font-size: 16px;
-        margin-left: 8px;
-        color: var(--color-text-3);
-        cursor: help;
-        vertical-align: super;
-        transition: color 0.2s ease;
-
-        &:hover {
-          color: rgb(var(--primary-6));
-        }
-      }
-    }
-  }
-
-  .balance_overview_info {
-    font-size: 14px;
-    color: var(--color-text-2);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-
-    em {
-      font-style: normal;
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--color-text-1);
-    }
-
-    .balance_overview_divider {
-      width: 1px;
-      height: 14px;
-      background-color: var(--color-border-2);
-    }
-
-    .balance_overview_used {
-      em {
-        color: rgb(var(--warning-6));
-      }
-    }
-
-    .balance_overview_remaining {
-      em {
-        color: rgb(var(--success-6));
-      }
-    }
-  }
-
-  .balance_overview_progress {
-    position: relative;
-    padding: 4px 0;
-
-    .progress_label {
-      font-size: 14px;
-      color: var(--color-text-2);
-      margin: 12px 0 8px;
-    }
-
-    :deep(.arco-progress) {
-      &.arco-progress-is-animation .arco-progress-line-path {
-        transition: all 0.6s cubic-bezier(0.34, 0.69, 0.1, 1);
-      }
-
-      .arco-progress-line-text {
-        font-size: 14px;
-        font-weight: 500;
-      }
-    }
-  }
-}
-
-.balance_list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-
-  .balance_card {
-    border-radius: 8px;
-
-    .balance_card_header {
+    .balance_overview_title {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--color-text-1);
 
-      .balance_card_title {
-        font-size: 16px;
-        font-weight: bold;
-        color: var(--color-text-1);
+      .balance_overview_label {
+        position: relative;
+        padding-left: 12px;
 
-        .balance_card_en_name {
-          font-size: 14px;
-          color: var(--color-text-3);
-          margin-left: 8px;
-          font-weight: normal;
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 16px;
+          background-color: rgb(var(--primary-6));
+          border-radius: 2px;
         }
       }
 
-      .balance_card_days {
-        font-size: 20px;
-        font-weight: bold;
+      .balance_overview_days {
+        font-size: 32px;
         color: rgb(var(--primary-6));
+        font-weight: 600;
+        text-shadow: 0 2px 4px rgba(var(--primary-6), 0.2);
+
+        .info-icon {
+          font-size: 16px;
+          margin-left: 8px;
+          color: var(--color-text-3);
+          cursor: help;
+          vertical-align: super;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: rgb(var(--primary-6));
+          }
+        }
       }
     }
 
-    .balance_card_content {
-      .balance_card_progress {
-        margin-bottom: 12px;
+    .balance_overview_info {
+      font-size: 14px;
+      color: var(--color-text-2);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      em {
+        font-style: normal;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--color-text-1);
       }
 
-      .balance_card_info {
+      .balance_overview_divider {
+        width: 1px;
+        height: 14px;
+        background-color: var(--color-border-2);
+      }
+
+      .balance_overview_used {
+        em {
+          color: rgb(var(--warning-6));
+        }
+      }
+
+      .balance_overview_remaining {
+        em {
+          color: rgb(var(--success-6));
+        }
+      }
+    }
+
+    .balance_overview_progress {
+      position: relative;
+      padding: 4px 0;
+
+      .progress_label {
+        font-size: 14px;
+        color: var(--color-text-2);
+        margin: 12px 0 8px;
+      }
+
+      :deep(.arco-progress) {
+        &.arco-progress-is-animation .arco-progress-line-path {
+          transition: all 0.6s cubic-bezier(0.34, 0.69, 0.1, 1);
+        }
+
+        .arco-progress-line-text {
+          font-size: 14px;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .balance_list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .balance_card {
+      border-radius: 8px;
+
+      .balance_card_header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 14px;
-        color: var(--color-text-2);
+        margin-bottom: 16px;
 
-        .balance_card_date {
-          font-weight: 500;
+        .balance_card_title {
+          font-size: 16px;
+          font-weight: bold;
+          color: var(--color-text-1);
+
+          .balance_card_en_name {
+            font-size: 14px;
+            color: var(--color-text-3);
+            margin-left: 8px;
+            font-weight: normal;
+          }
         }
 
-        .balance_card_countdown {
-          color: rgb(var(--warning-6));
+        .balance_card_days {
+          font-size: 20px;
+          font-weight: bold;
+          color: rgb(var(--primary-6));
+        }
+      }
+
+      .balance_card_content {
+        .balance_card_progress {
+          margin-bottom: 12px;
+        }
+
+        .balance_card_info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+          color: var(--color-text-2);
+
+          .balance_card_date {
+            font-weight: 500;
+          }
+
+          .balance_card_countdown {
+            color: rgb(var(--warning-6));
+          }
         }
       }
     }

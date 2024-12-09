@@ -27,14 +27,12 @@
       </router-view>
     </a-layout-content>
   </a-layout>
-  <Appreciate />
 </template>
 <script setup>
 import { ref, watch, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useDark } from '@vueuse/core';
 import { detach, fetchHolidayData } from '@/store/AppStore';
-import Appreciate from '@/components/Appreciate/index.vue';
 import confetti from 'canvas-confetti';
 import dayjs from 'dayjs';
 
@@ -168,17 +166,14 @@ const fishStatsRef = ref(null);
 
 .fade-enter-from {
   opacity: 0;
-  transform: translateY(-30px);
 }
 
 .fade-leave-to {
   opacity: 0;
-  transform: translateY(30px);
 }
 
 .fade-enter-to,
 .fade-leave-from {
   opacity: 1;
-  transform: translateY(0);
 }
 </style>

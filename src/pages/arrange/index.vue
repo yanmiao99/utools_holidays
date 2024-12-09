@@ -99,8 +99,6 @@ const goToGuide = (holiday) => {
 
 <style scoped lang="less">
 .arrange_container {
-  padding: 20px;
-  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -108,6 +106,7 @@ const goToGuide = (holiday) => {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding: 20px;
 }
 
 .arrange_card {

@@ -12,9 +12,10 @@ export const holidayData = ref({
 // 获取假期数据
 export const fetchHolidayData = async () => {
   try {
-    const data = await window.preload.getHolidayData();
-    if (data) {
-      holidayData.value = data;
+    const data = await fetch('https://videoapi.funjs.top/public/Holidays.json');
+    const jsonData = await data.json();
+    if (jsonData) {
+      holidayData.value = jsonData;
     }
   } catch (error) {
     console.error('Error fetching holiday data:', error);

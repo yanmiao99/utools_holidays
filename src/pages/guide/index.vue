@@ -1,8 +1,7 @@
 <template>
   <div class="guide_container">
+    <PageTitle title="请假攻略" />
     <div class="guide_content">
-      <PageTitle title="请假攻略" />
-
       <div
         class="guide_month"
         :id="`month-${month}`"
@@ -15,7 +14,7 @@
           </div>
           <div class="guide_month_plans">
             <a-tag
-              v-for="(plan, index) in getMonthPlans(month)"
+              v-for="plan in getMonthPlans(month)"
               :key="plan.key"
               :class="{ active: selectedPlan === plan.key }"
               @click="handlePlanClick(plan)">
@@ -161,23 +160,22 @@ const handlePlanClick = (plan) => {
 
 // 获取日历配置
 const getCalendarOptions = (month) => ({
-  plugins: [dayGridPlugin],
-  initialView: 'dayGridMonth',
+  plugins: [dayGridPlugin], // 使用 dayGrid 插件
+  initialView: 'dayGridMonth', // 初始视图设置为月视图
   initialDate: `${holidayData.value.year}-${month
     .toString()
     .padStart(2, '0')}-01`,
-  headerToolbar: false,
-  dayHeaders: true,
-  fixedWeekCount: false,
-  showNonCurrentDates: true,
+  headerToolbar: false, // 隐藏头部工具栏
+  dayHeaders: true, // 显示星期标题
+  fixedWeekCount: false, // 不固定周数
+  showNonCurrentDates: true, // 显示非当前月份的日期
   firstDay: 1, // 周一开始
-  height: 'auto',
-  locale: 'zh-cn',
+  height: 'auto', // 高度自动
+  locale: 'zh-cn', // 中文
   dayCellContent: (arg) => {
     const date = arg.date;
     const dateStr = dayjs(date).format('YYYY-MM-DD');
     const mark = getDayMark(date);
-
     return {
       html: `
         <div class="calendar_cell ${getDateClass(date, dateStr)}">
@@ -228,17 +226,15 @@ watch(
 
 <style scoped lang="less">
 .guide_container {
-  padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
   background-color: var(--color-bg-1);
   position: relative;
 }
 
 .guide_content {
-  height: calc(100vh - 40px);
   overflow-y: auto;
-  padding-right: 100px;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .guide_anchor {
@@ -273,6 +269,7 @@ watch(
 .guide_month {
   scroll-margin-top: 40px;
   margin-bottom: 40px;
+  padding-right: 80px;
 
   .guide_month_header {
     display: flex;

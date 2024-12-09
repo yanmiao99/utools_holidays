@@ -1,16 +1,24 @@
 <template>
   <div :class="['appreciate_container', $attrs.class]">
-    <a-button
-      type="primary"
-      :status="isPayday ? 'success' : ''"
-      shape="round"
-      v-if="visible || isPayday"
-      @click="showModal = true">
-      <template #icon>
-        <icon-heart-fill />
-      </template>
-      {{ isPayday ? '发薪日快乐！' : '赞赏' }}
-    </a-button>
+    <a-tooltip :content="isPayday ? '发薪日快乐！' : '赞赏'">
+      <a-button
+        v-if="visible || isPayday"
+        @click="showModal = true"
+        type="text"
+        size="small">
+        <template #icon>
+          <icon-heart
+            :style="{
+              color: isPayday ? 'rgb(var(--success-6))' : 'rgb(var(--text-1))',
+            }" />
+        </template>
+        <span
+          class="appreciate_text"
+          :class="{ appreciate_text_payday: isPayday }">
+          {{ isPayday ? '发薪日快乐！' : '赞赏' }}
+        </span>
+      </a-button>
+    </a-tooltip>
 
     <a-modal
       v-model:visible="showModal"
@@ -55,25 +63,22 @@ const isPayday = computed(() => {
 
 <style scoped lang="less">
 .appreciate_container {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  z-index: 100;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-
-  &:hover {
-    opacity: 1;
-  }
-
-  &:not([class*='payday']) {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-  }
-
   :deep(.arco-btn) {
-    min-width: 80px;
+    color: var(--color-text-1);
+    font-size: 20px;
+
+    &:hover {
+      background-color: var(--color-fill-3);
+    }
+  }
+
+  .appreciate_text {
+    font-size: 14px;
+    color: var(--color-text-1);
+  }
+
+  .appreciate_text_payday {
+    color: rgb(var(--success-6));
   }
 }
 

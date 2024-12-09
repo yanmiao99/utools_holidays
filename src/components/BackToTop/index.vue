@@ -1,19 +1,25 @@
 <template>
-  <transition name="fade">
+  <div
+    class="back-to-top-container"
+    :style="{
+      right: style.right,
+      bottom: style.bottom,
+    }">
     <a-tooltip
-      v-show="visible"
       content="返回顶部"
       position="left">
-      <div
-        class="back-to-top"
-        @click="scrollToTop"
-        :style="style">
-        <div class="back-top-inner">
-          <icon-up />
+      <transition name="fade">
+        <div
+          v-show="visible"
+          class="back-to-top"
+          @click="scrollToTop">
+          <div class="back-top-inner">
+            <icon-up />
+          </div>
         </div>
-      </div>
+      </transition>
     </a-tooltip>
-  </transition>
+  </div>
 </template>
 
 <script setup>
@@ -39,11 +45,11 @@ const props = defineProps({
   // 自定义样式
   right: {
     type: [Number, String],
-    default: 24,
+    default: 20,
   },
   bottom: {
     type: [Number, String],
-    default: 80,
+    default: 20,
   },
 });
 
@@ -111,11 +117,26 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="less">
-.back-to-top {
+.back-to-top-container {
   position: fixed;
-  cursor: pointer;
   z-index: 999;
+  pointer-events: none;
+  right: 0;
+  bottom: 0;
+
+  :deep(.arco-trigger) {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.back-to-top {
+  cursor: pointer;
   pointer-events: auto;
+  position: relative;
+  right: 0;
+  bottom: 0;
 
   .back-top-inner {
     width: 44px;

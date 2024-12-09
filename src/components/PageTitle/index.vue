@@ -7,15 +7,16 @@
       </div>
       <FishStats />
       <ThemeSwitch />
+      <Appreciate />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
 import { holidayData } from '@/store/AppStore';
 import ThemeSwitch from '@/components/ThemeSwitch/index.vue';
 import FishStats from '@/components/FishStats/index.vue';
+import Appreciate from '@/components/Appreciate/index.vue';
 
 defineProps({
   title: {
@@ -30,7 +31,25 @@ defineProps({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  height: 60px;
+  padding: 0 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: var(--color-bg-2);
+  border-bottom: 1px solid var(--color-border);
+  transition: all 0.3s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-bg-2);
+    opacity: 0.8;
+    z-index: -1;
+  }
 
   .page_title {
     font-size: 24px;
