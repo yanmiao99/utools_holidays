@@ -235,6 +235,7 @@ watch(
   padding: 20px;
   box-sizing: border-box;
   position: relative;
+  height: calc(100vh - 60px);
 }
 
 .guide_anchor {

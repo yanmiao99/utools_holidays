@@ -139,8 +139,8 @@ onUnmounted(() => {
   bottom: 0;
 
   .back-top-inner {
-    width: 44px;
-    height: 44px;
+    width: 30px;
+    height: 30px;
     border-radius: 22px;
     background-color: var(--color-bg-2);
     color: var(--color-text-1);

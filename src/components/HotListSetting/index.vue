@@ -3,6 +3,7 @@
     v-model:visible="visible"
     title="热榜设置"
     @ok="handleSave"
+    :draggable="true"
     @cancel="handleCancel"
     :ok-text="'保存设置'"
     :cancel-text="'取消'"
